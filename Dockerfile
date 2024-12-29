@@ -17,8 +17,10 @@ EXPOSE 5245
 ENV HOST="0.0.0.0"
 ENV PORT="5245"
 ENV BASE_URL="http://localhost:5244"
-ENV DB_URI="sqlite:///app.db"  # 例如使用 SQLite 数据库
-ENV TOKEN="your-alist-token"  # 如果需要 token 可以在此设置
+# 例如使用 SQLite 数据库
+ENV DB_URI sqlite:///app.db
+# 如果需要 token 可以在此设置
+ENV TOKEN="your-alist-token"  
 
 # 设置容器启动时的命令，使用传入的环境变量
 CMD ["alist-proxy", "-H", "${HOST}", "-P", "${PORT}", "-b", "${BASE_URL}", "-t", "${TOKEN}", "-u", "${DB_URI}"]
