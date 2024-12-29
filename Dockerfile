@@ -1,38 +1,33 @@
-# 使用官方的 Python 精简版镜像
-FROM python:3.12-slim-bullseye
+FROM python:3.12.8-alpine
 
-# 安装 OpenSSH 服务、清理 apt 缓存并安装 alist_proxy
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends openssh-server tzdata && \
-    rm -rf /var/lib/apt/lists/* && \
-    pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -U alist_proxy
-
-# 设置容器的工作目录
+# 设置工作目录
 WORKDIR /app
 
-# 创建 SSH 目录和配置文件
-RUN mkdir /var/run/sshd
+# 安装系统依赖
+RUN apk update && apk add --no-cache gcc musl-dev libffi-dev libmagic supervisor
 
-# 设置密码（可根据需要修改）
-RUN echo 'root:password' | chpasswd
+# 安装 pip 并升级
+RUN pip install --upgrade pip
 
-# 配置 SSH 服务
-RUN sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
-    sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+# 安装 alist_proxy 和 python-emby-proxy
+RUN pip install -U alist_proxy python-emby-proxy
 
-# 设置时区为中国区（Asia/Shanghai）
-ENV TZ=Asia/Shanghai
+# 创建 supervisor 配置目录
+RUN mkdir -p /etc/supervisor/conf.d
 
-# 暴露 SSH 和 alist_proxy 默认的端口
-EXPOSE 22 5245
+# 复制 supervisord 配置文件到容器内
+COPY ./config/supervisord.conf /etc/supervisor/supervisord.conf
 
-# 设置默认的环境变量，用于反代地址和端口
+# 暴露需要的端口
+EXPOSE 5245 8096
+
+# 设置默认的环境变量（根据需要修改）
 ENV HOST=0.0.0.0
 ENV PORT=5245
 ENV BASE_URL=http://localhost:5244
 ENV DB_URI=sqlite:///app.db
 ENV TOKEN=your-alist-token
+ENV EMBY_URL=http://localhost:8096
 
-# 启动 SSH 服务和 alist-proxy
-CMD service ssh start && alist-proxy --token $TOKEN --base-url $BASE_URL
+# 使用 supervisor 启动进程
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
