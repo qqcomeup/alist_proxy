@@ -22,5 +22,5 @@ ENV DB_URI sqlite:///app.db
 # 如果需要 token 可以在此设置
 ENV TOKEN="your-alist-token"  
 
-# 设置容器启动时的命令，使用传入的环境变量
-CMD ["alist-proxy", "-H", "${HOST}", "-P", "${PORT}", "-b", "${BASE_URL}", "-t", "${TOKEN}", "-u", "${DB_URI}"]
+# 设置容器启动时的命令，使用指定的 token 和 base-url
+CMD ["alist-proxy", "--token", "alist-45b225f5-d6b1-4c29-8bb9-c352e6faa655HEhxRY1a4HeV9TLPEbdMJc61wbI0hB9tA3XXYmdEsPkErBmppiLuOJjo2ietr1Z1Z", "--base-url", "http://192.168.8.4:5244"]
