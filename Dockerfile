@@ -1,20 +1,28 @@
 # 使用官方的 Python 镜像作为基础镜像
 FROM python:3.12
 
+# 设置维护者信息
+# 这行注释掉了，保持不会影响 Dockerfile
+#LABEL maintainer="ck9394@example.com"
+
 # 设置容器的工作目录
 WORKDIR /app
 
-# 安装 python-alist 的正确版本
-RUN pip install python-alist>=0.0.13 -i https://pypi.tuna.tsinghua.edu.cn/simple
-
-# 更新 pip
+# 安装 pip 和更新
 RUN pip install --upgrade pip
 
-# 安装 alist-proxy，并禁用缓存
-RUN pip install -U alist-proxy -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache-dir
+# 安装 alist_proxy
+RUN pip install -U alist_proxy
 
-# 暴露端口 5245
+# 暴露 alist_proxy 默认的端口
 EXPOSE 5245
 
-# 设置容器启动时的命令
-CMD ["alist_proxy", "--port", "5245"]
+# 设置默认的环境变量，用于反代地址和端口
+ENV HOST="0.0.0.0"
+ENV PORT="5245"
+ENV BASE_URL="http://localhost:5244"
+ENV DB_URI="sqlite:///app.db"  # 例如使用 SQLite 数据库
+ENV TOKEN="your-alist-token"  # 如果需要 token 可以在此设置
+
+# 设置容器启动时的命令，使用传入的环境变量
+CMD ["alist-proxy", "-H", "${HOST}", "-P", "${PORT}", "-b", "${BASE_URL}", "-t", "${TOKEN}", "-u", "${DB_URI}"]
