@@ -1,5 +1,5 @@
 # 使用官方的 Python 镜像作为基础镜像
-FROM python:3.12
+FROM python:3.12.8-slim-bullseye
 
 # 安装 OpenSSH 服务
 RUN apt-get update && apt-get install -y openssh-server
