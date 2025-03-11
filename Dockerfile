@@ -9,9 +9,10 @@ RUN apk update && \
     apk add --no-cache --virtual .build-deps gcc musl-dev libxml2-dev libxslt-dev curl bash libcurl
 
 # 安装 Python 依赖
-RUN pip install --no-cache-dir requests watchdog clouddrive
-RUN pip install --no-cache-dir lxml uncurl
-RUN pip install --no-cache-dir httpx beautifulsoup4 flaresolverr
+RUN pip install --no-cache-dir requests watchdog clouddrive lxml uncurl httpx beautifulsoup4 -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# 如果 flaresolverr 是自定义库，从源代码安装
+# RUN pip install --no-cache-dir git+https://github.com/your-repo/flaresolverr.git
 
 # 删除构建依赖
 RUN apk del .build-deps
