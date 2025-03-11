@@ -4,12 +4,16 @@ FROM python:3.12.8-alpine
 # 设置工作目录
 WORKDIR /app
 
-# 安装构建依赖（包括必要的编译工具和库）
-RUN apk add --no-cache --virtual .build-deps gcc musl-dev libxml2-dev libxslt-dev curl bash && \
-    # 安装 Python 依赖
-    pip install --no-cache-dir requests watchdog clouddrive lxml uncurl httpx[http2] beautifulsoup4 flaresolverr && \
-    # 删除构建依赖
-    apk del .build-deps
+# 更新包索引，并安装构建依赖
+RUN apk update && apk add --no-cache --virtual .build-deps gcc musl-dev libxml2-dev libxslt-dev curl bash
+
+# 安装 Python 依赖
+RUN pip install --no-cache-dir requests watchdog clouddrive
+RUN pip install --no-cache-dir lxml uncurl
+RUN pip install --no-cache-dir httpx[http2] beautifulsoup4 flaresolverr
+
+# 删除构建依赖
+RUN apk del .build-deps
 
 # 安装 cron 服务
 RUN apk add --no-cache cron
