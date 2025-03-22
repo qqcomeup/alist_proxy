@@ -1,30 +1,23 @@
-# 基于 Python 3.12.8 的 Alpine 镜像
-FROM python:3.12.8-alpine
+FROM python:3.8.18-slim
 
-# 设置工作目录
 WORKDIR /app
 
-# 更新包索引并安装构建依赖
-RUN apk update && \
-    apk add --no-cache --virtual .build-deps gcc musl-dev libxml2-dev libxslt-dev curl bash libcurl
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    software-properties-common \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-# 安装 Python 依赖
-RUN pip install --no-cache-dir requests watchdog clouddrive lxml uncurl httpx beautifulsoup4 -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN git clone https://github.com/tetato/JavSP-Docker.git .
+RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple -U pip 
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3 install -r requirements.txt
 
-# 如果 flaresolverr 是自定义库，从源代码安装
-# RUN pip install --no-cache-dir git+https://github.com/your-repo/flaresolverr.git
+VOLUME /video
 
-# 删除构建依赖
-RUN apk del .build-deps
+EXPOSE 8501
 
-# 安装 cron 服务
-RUN apk add --no-cache cron
+HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
-# 将你的 Python 脚本和 cron 配置文件复制到容器中
-COPY . /app
-
-# 复制 cron 配置文件到系统 cron 配置目录
-COPY crontab /etc/crontabs/root
-
-# 设置容器启动时运行 cron 服务
-CMD ["sh", "-c", "crond && tail -f /dev/null"]
+ENTRYPOINT ["streamlit", "run", "webui/scraper_setting.py", "--server.port=8501", "--server.address=0.0.0.0"]
