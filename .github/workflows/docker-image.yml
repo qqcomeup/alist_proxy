@@ -24,8 +24,8 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/JavSP-Docker:0.1 .
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/jaysp-Docker:0.1 .
 
     - name: Push Docker image
       run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/JavSP-Docker:0.1
+        docker push ${{ secrets.DOCKER_USERNAME }}/jaysp-Docker:0.1
